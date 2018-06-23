@@ -7,19 +7,20 @@ def show(request):
     new_img = IMG(img=request.FILES.get('img'))
     new_img.save()
     content = {
-        'aaa': new_img,
+        'aaa': new_img.url_path,
+        'bbb': new_img.wrap_url_path,
     }
     return render(request, 'unwrap/show.html', content)
 def download(request):
-    try:
-        new_img = IMG(img=request.FILES.get('img'))
-        new_img.save()
-        response = StreamingHttpResponse(readFile(new_img.path))  
-        response['Content-Type']='application/octet-stream'  
-        response['Content-Disposition']='attachment;filename="unwrapped.jpg"'  
-        return response
-    except:
-        return render(request, 'unwrap/404.html')
+    #try:
+    new_img = IMG(img=request.FILES.get('img'))
+    new_img.save()
+    response = StreamingHttpResponse(readFile(new_img.wrap_path))  
+    response['Content-Type']='application/octet-stream'  
+    response['Content-Disposition']='attachment;filename="unwrapped.jpg"'  
+    return response
+    #except:
+        #return render(request, 'unwrap/404.html')
 
 def readFile(filename,chunk_size=512):  
     with open(filename,'rb') as f:  

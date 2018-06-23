@@ -11,7 +11,7 @@ import keras
 from keras.models import load_model
 
 class IMG(models.Model):
-    img = models.ImageField(upload_to='upload')
+    img = models.ImageField()
     def __init__(self, *args, **kwargs):
         super(IMG, self).__init__(*args, **kwargs)
         keras.backend.clear_session()
@@ -24,6 +24,12 @@ class IMG(models.Model):
         self.input_h, self.input_w = self.model.input_shape[1:3]
         self.output_h, self.output_w = self.model.output_shape[1:3]
         self.path = self.img.path
+        print(self.img.path)
+        t = os.path.splitext(self.img.path)
+        self.wrap_path = t[0] + '_wrapped.jpg'
+        self.url_path = self.img.url
+        t = os.path.splitext(self.img.url)
+        self.wrap_url_path = t[0] + '_wrapped.jpg'
     
     def save(self):
         super(IMG, self).save()
@@ -39,5 +45,4 @@ class IMG(models.Model):
             pts[...,1] = np.clip(pts[...,1] * w / self.output_w, 0, w-1)
             raw_image = robust_unwarp(raw_image, pts)
         result = Image.fromarray(raw_image)
-        result.save(os.path.splitext(self.img.path)[0] + '.jpg')
-        self.path = self.img.path
+        result.save(self.wrap_path)
