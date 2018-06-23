@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 import os
 import numpy as np
 from django.db import models
-from skimage.transform import resize
+import cv2
 from .postprocess import find_corner_condidate 
 from .unwrap import robust_unwarp
 from PIL import Image
@@ -30,10 +30,10 @@ class IMG(models.Model):
         raw_image = Image.open(self.img)
         raw_image = raw_image.convert('RGB')
         raw_image = np.array(raw_image, dtype=np.uint8)
-        img_r = resize(raw_image, (self.input_h, self.input_w), preserve_range=True).astype(np.float32)[np.newaxis,...] / 255.0
+        img_r = np.clip(cv2.resize(raw_image, (self.input_w, self.input_h), interpolation=cv2.INTER_AREA).astype(np.float32)[np.newaxis,...] / 255.0, 0, 1)
         h, w = raw_image.shape[:2]
         label = self.model.predict(img_r, batch_size=1)[0]
-        pts = find_corner_condidate((label>0.5).astype(np.uint8), 13) # format: (y, x)
+        pts = find_corner_condidate((label>0.5).astype(np.uint8), 10) # format: (y, x)
         if len(pts)>0:
             pts[...,0] = np.clip(pts[...,0] * h / self.output_h, 0, h-1)
             pts[...,1] = np.clip(pts[...,1] * w / self.output_w, 0, w-1)
