@@ -23,6 +23,11 @@ class IMG(models.Model):
         self.model.compile(loss='mse', optimizer='sgd')
         self.input_h, self.input_w = self.model.input_shape[1:3]
         self.output_h, self.output_w = self.model.output_shape[1:3]
+        self.original_filename = os.path.split(self.img.path)[-1]
+        self.download_filename = os.path.splitext(self.original_filename)[0] + '_wrapped.jpg'
+    
+    def save(self):
+        super(IMG, self).save() # if has same filename. change to different filename
         self.path = self.img.path
         print(self.img.path)
         t = os.path.splitext(self.img.path)
@@ -30,9 +35,6 @@ class IMG(models.Model):
         self.url_path = self.img.url
         t = os.path.splitext(self.img.url)
         self.wrap_url_path = t[0] + '_wrapped.jpg'
-    
-    def save(self):
-        super(IMG, self).save()
         raw_image = Image.open(self.img)
         raw_image = raw_image.convert('RGB')
         raw_image = np.array(raw_image, dtype=np.uint8)

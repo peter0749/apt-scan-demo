@@ -11,6 +11,8 @@ def show(request):
     content = {
         'aaa': new_img.url_path,
         'bbb': new_img.wrap_url_path,
+        'aaa_name': new_img.original_filename,
+        'bbb_name': new_img.download_filename
     }
     return render(request, 'unwrap/show.html', content)
 def download(request):
@@ -19,7 +21,7 @@ def download(request):
         new_img.save()
         response = StreamingHttpResponse(readFile(new_img.wrap_path))  
         response['Content-Type']='application/octet-stream'  
-        response['Content-Disposition']='attachment;filename="unwrapped.jpg"'  
+        response['Content-Disposition']='attachment;filename="%s"'%new_img.download_filename
         return response
     except:
         return render(request, 'unwrap/404.html')

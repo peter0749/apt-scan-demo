@@ -8,7 +8,7 @@
       objClicked: '.img',      // 点击的元素
       rotateDirection: 'right' // 图片旋转方向， 默认是right => 顺时针
     }, options);   
-    var obj = this, objClicked = options.objClicked, fileName = options.fileName, list_images = [];
+    var obj = this, objClicked = options.objClicked, fileName = options.fileName, list_images = [], image_names = [];
 
     initHtml(obj);
     initCss(obj);
@@ -18,14 +18,16 @@
       // 清空数组 list_images
       if(list_images.length > 0){
         list_images.length = 0;
+        image_names.length = 0;
       }
 
       $(objClicked).each(function(index, element) {
-        var $img = $(element), _src = $img.attr("src");
+        var $img = $(element), _src = $img.attr("src"), _rname = $img.attr("real_fname");
         if(_url == _src){
           current = index + 1;
         }
         list_images.push(_src);
+        image_names.push(_rname);
       });
       if(typeof(fileName) == 'undefined'){
         $('.modal-title').text('Image Preview');
@@ -37,7 +39,7 @@
       $(obj).find('#unbind-pos').modal('show');
     });
 
-    btnCtrlImgEvent(options, list_images);
+    btnCtrlImgEvent(options, list_images, image_names);
   };
 
   var rotateDeg = 0;
@@ -101,13 +103,13 @@
   /**
   * 按钮控制图片事件
   */
-  function btnCtrlImgEvent(options, list_images){
+  function btnCtrlImgEvent(options, list_images, image_names){
     zoomIn();
     zoomOut();
     dragImage();
     rotateImage(options);
     switchImage(list_images);
-    downloadImage(list_images);
+    downloadImage(list_images, image_names);
   };
 
   //图片放大
@@ -214,7 +216,7 @@
   };
   
   // Download
-  function downloadImage(list_images){
+  function downloadImage(list_images, image_names){
     var $modal = $('#unbind-pos');
     $('#unbind-pos').on('click', '.download', function(e){
       e.preventDefault(); //stop the browser from following
@@ -224,8 +226,8 @@
       var _src = _list_images[_current-1];
       var a = document.createElement('a');
       a.href = _src;
-      var t = _src.split('/');
-      a.download = t[t.length-1];
+      // var t = _src.split('/');
+      a.download = image_names[_current-1];
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
